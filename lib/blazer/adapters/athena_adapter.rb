@@ -12,8 +12,11 @@ module Blazer
           resp =
             client.start_query_execution(
               query_string: statement,
-              # use token so we fetch cached results after query is run
-              client_request_token: Digest::MD5.hexdigest([statement,data_source.id].join("/")),
+              # use token so we fetch cached results after query is
+              # run token valid for a minute, relay the "safe query
+              # requests" to the standard blazer cache
+              timestamp = Time.now.strftime("%d%m%Y%H%M")
+              client_request_token: Digest::MD5.hexdigest([statement, timestamp, data_source.id].join("/")),
               query_execution_context: {
                 database: database,
               },
